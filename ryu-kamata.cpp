@@ -1,11 +1,17 @@
-//
-// Created by fernando on 05-07-24.
-//
+
+// Created by fernando Santolaya on 05-07-24.
+/* Based on paper:
+ * Ryu, J., & Kamata, S. I. (2021).
+ * An efficient computational algorithm for Hausdorff distance based on
+ * points-ruling-out and systematic random sampling.
+ * Pattern Recognition, 114, artículo 107857.
+ */
+
 
 #include <vector>
 #include <limits>
 #include <algorithm>
-#include "utils.h"
+#include "Util/utils.h"
 #include <cmath>
 #include <Util/Point.h>
 #include "ryu-kamata.h"

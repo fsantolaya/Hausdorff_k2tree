@@ -1,11 +1,10 @@
 //
-// Created by fernando on 05-07-24.
+// Created by Fernando Santolaya on 05-07-24.
 //
- #include "utils.h"
+ #include "Util/utils.h"
 #include <cstring>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <stdlib.h>
 #include <iostream>
 #include <random>
 

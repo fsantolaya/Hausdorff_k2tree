@@ -1,5 +1,5 @@
 //
-// Created by fernando-lenovo on 29-08-24.
+// Created by Fernando Santolaya on 29-08-24.
 //
 
 #ifndef TESIS_RYU_KAMATA_H

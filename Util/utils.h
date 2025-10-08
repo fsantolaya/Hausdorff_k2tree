@@ -5,6 +5,8 @@
 #define UTIL_H
 
 #include <string>
+#include <fstream>
+#include <sstream>
 
 typedef struct Stats {
     std::string dataset;
@@ -48,6 +50,7 @@ typedef struct Stats {
 } Stats;
 
 const int CONVERSION_VALUE = 1024;
+
 
 int checkFileExist(char file[]);
 int fileIsEmpty(char file[]);
