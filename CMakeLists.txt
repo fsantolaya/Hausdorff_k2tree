@@ -8,7 +8,7 @@ include_directories(
         .
         IO
         Logs
-        Snapshot
+        K2tree
         Util
 )
 
@@ -29,7 +29,7 @@ target_include_directories(cds PUBLIC
 
 # ==== EJECUTABLE hausdorff ====
 add_executable(hausdorff
-        Snapshot/K2tree.cpp
+        K2tree/K2tree.cpp
         Util/Factory.cpp
         Util/Point.cpp
         Util/TimeMesure.cpp

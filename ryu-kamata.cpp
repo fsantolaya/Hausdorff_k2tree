@@ -11,8 +11,8 @@
 #include <vector>
 #include <limits>
 #include <algorithm>
-#include "Util/utils.h"
 #include <cmath>
+#include "Util/utils.h"
 #include <Util/Point.h>
 #include "ryu-kamata.h"
 

@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dirent.h>
 #include <K2tree.h>
 #include <BitSequence.h>
 #include "ryu-kamata.h"
