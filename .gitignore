@@ -1,8 +1,5 @@
 /cmake-build-debug/
 /libcds/
-/.vscode/
 /.idea/
-/build/
-/out/
-/CMakeFiles/
 /CMakeCache.txt
+/.vscode/
