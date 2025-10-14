@@ -354,7 +354,7 @@ void construirEstructura(const std::string &dataset1, const std::string &dataset
 int main(int argc, char **argv) {
     if (argc < 4) {
         printf("%s <PATH DATASETS> <EXPERIMENTO> <CONSTRUIR (1/0)>\n", argv[0]);
-        printf("EXPERIMENTO: 1 (KAMATA), 2 (TAHA), 3 (K2T MX HEAP V2), 4 (K2T MX HEAP V3)\n");
+        printf("EXPERIMENTO: 1 (KAMATA), 2 (K2T MX HEAP V2), 3 (K2T MX HEAP V3)\n");
         return -1;
     }
 
