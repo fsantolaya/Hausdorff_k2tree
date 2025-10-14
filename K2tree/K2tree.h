@@ -56,15 +56,17 @@ void _insertNode(lkt * tree, int x, int y, uint * labelArray);
 int loadMREP2FromFile(MREP2 **ktree, FILE *file);
 int saveMREP2ToFile(MREP2 *ktree, FILE *file);
 
-MREP2 * createSnapshot(string dataset1, int elevate, uint numberOfNodes);
-void destroySnapshot(MREP2 * rep);
-MREP2 * loadSnapshotFromFile( const char *filename);
-int saveSnapshotToFile(MREP2 *snapshot, const char *filename) ;
+MREP2 * createK2tree(string dataset1, int elevate, uint numberOfNodes);
+void destroyK2tree(MREP2 * rep);
+MREP2 * loadK2treeFromFile( const char *filename);
+int saveK2treeToFile(MREP2 *snapshot, const char *filename) ;
 
 
 /* AGREGADOS POR FERNANDO SANTOLAYA PARA EXPERIMENTOS */
 double hausdorffDistHDK3MaxHeapv2(MREP2 * A, MREP2 * B);
 double symmetricHausdorffDistance2D(MREP2 *A, MREP2 *B);
+double naiveHDD( std::vector<Point>& p1,  std::vector<Point>& p2);
+double hausdorffDistTaha2( vector<Point> &A,  vector<Point> &B);
 extern int heapMaxElements;
 extern int exitHeapElements;
 

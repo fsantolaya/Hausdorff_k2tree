@@ -220,6 +220,32 @@ void KAMATA(MREP2 *snapsp, MREP2 *snapsp2, Stats &resultados, int cantPuntosSet1
     imprimeResultados(resultados);
 }
 
+void NAIVE(MREP2 *snapsp, MREP2 *snapsp2, Stats &resultados, int cantPuntosSet1, int cantPuntosSet2) {
+    Cronometer *crono = cCronometer();
+    double extrTime = 0.0;
+    start_clock(crono);
+    auto dataset1 = extractPointK2tree(snapsp, cantPuntosSet1);
+    auto dataset2 = extractPointK2tree(snapsp2, cantPuntosSet2);
+    extrTime = (double) (stop_clock(crono) * 1000000.0);
+
+    double time = 0.0;
+    start_clock(crono);
+    auto haussCompleto = naiveHDD(dataset1, dataset2);
+    time = (double) (stop_clock(crono) * 1000000.0);
+
+    resultados.algoritmo = "K2T-NAIVE";
+    resultados.queryTime = time;
+    resultados.queryTimeWall = wallTime(crono) * 1000000.0;
+    resultados.extractTime = extrTime;
+    resultados.storage = (((sizeof(int) * 2) * cantPuntosSet1) + ((sizeof(int) * 2) * cantPuntosSet2)) + (
+                             sizeof(double) * cantPuntosSet1 + sizeof(double) * cantPuntosSet2);
+    resultados.hauss_distance = haussCompleto;
+    resultados.lambda = 3;
+    resultados.peakRealMem = getResidentMemory();
+    resultados.peakVirtMem = getVirtualMemory();
+    imprimeResultados(resultados);
+}
+
 void ejecutaExperimentos(const std::string &dataset1, const std::string &dataset2, int experimento) {
     Cronometer *crono = cCronometer();
     Stats resultados; // para guardar el resultado de los experimentos.
@@ -234,8 +260,8 @@ void ejecutaExperimentos(const std::string &dataset1, const std::string &dataset
     std::string finalFilename1 = extractFilename(dataset1) + ".kt";
     std::string finalFilename2 = extractFilename(dataset2) + ".kt";
 
-    MREP2 *snapsp = loadSnapshotFromFile(finalFilename1.c_str());
-    MREP2 *snapsp2 = loadSnapshotFromFile(finalFilename2.c_str());
+    MREP2 *snapsp = loadK2treeFromFile(finalFilename1.c_str());
+    MREP2 *snapsp2 = loadK2treeFromFile(finalFilename2.c_str());
 
     resultados.dataset = extractFilename(dataset1);
     resultados.datasetCategory = extractCategoryName(dataset1);
@@ -259,13 +285,12 @@ void ejecutaExperimentos(const std::string &dataset1, const std::string &dataset
     }
 
     // Liberar recursos
-    destroySnapshot(snapsp); // Asegúrate de implementar esta función
-    destroySnapshot(snapsp2); // Asegúrate de implementar esta función
+    destroyK2tree(snapsp); // Asegúrate de implementar esta función
+    destroyK2tree(snapsp2); // Asegúrate de implementar esta función
     resultados.reset();
 }
 
 void test (const std::string &dataset1, const std::string &dataset2) {
-    Stats resultados; // para guardar el resultado de los experimentos.
 
     int cantPuntosSet1 = cuentaPuntos(dataset1);
     int cantPuntosSet2 = cuentaPuntos(dataset2);
@@ -274,62 +299,56 @@ void test (const std::string &dataset1, const std::string &dataset2) {
     std::string finalFilename1 = extractFilename(dataset1) + ".kt";
     std::string finalFilename2 = extractFilename(dataset2) + ".kt";
 
-    MREP2 *snapsp = loadSnapshotFromFile(finalFilename1.c_str());
-    MREP2 *snapsp2 = loadSnapshotFromFile(finalFilename2.c_str());
-
+    MREP2 *snapsp = loadK2treeFromFile(finalFilename1.c_str());
+    MREP2 *snapsp2 = loadK2treeFromFile(finalFilename2.c_str());
 
     auto dataset11 = extractPointK2tree(snapsp, cantPuntosSet1);
     auto dataset22 = extractPointK2tree(snapsp2, cantPuntosSet2);
-    // Ejecución del experimento según el tipo especificado
 
-    auto kamata = hausKamata(dataset11, dataset22, 3);
-    //auto taha = std::max(hausdorffDistTaha2(dataset11, dataset22), hausdorffDistTaha2(dataset22, dataset11));
-    auto k2treev2 = std::max(hausdorffDistHDK3MaxHeapv2(snapsp, snapsp2),
-                                  hausdorffDistHDK3MaxHeapv2(snapsp2, snapsp));
+    cout <<"cantidad de puntos del set1: "<< dataset11.size() << endl;
+    cout <<"cantidad de puntos del set2: "<< dataset22.size() << endl;
 
     auto k2treev3 = symmetricHausdorffDistance2D(snapsp, snapsp2);
-
-
-    std::cout <<"Hausdorff distance kamata = " << kamata << std::endl;
-   // std::cout <<"Hausdorff distance taha = " << taha << std::endl;
-    std::cout <<"Hausdorff distance k2treev2= " << k2treev2 << std::endl;
-    std::cout <<"Hausdorff distance k2treev3= " << k2treev3 << std::endl;
-
+    auto kamata = hausKamata(dataset11, dataset22, 3);
+    auto taha = std::max(hausdorffDistTaha2(dataset11, dataset22), hausdorffDistTaha2(dataset22, dataset11));
+    auto k2treev2 = std::max(hausdorffDistHDK3MaxHeapv2(snapsp, snapsp2),hausdorffDistHDK3MaxHeapv2(snapsp2, snapsp));
+    auto naive =  std::max(naiveHDD(dataset11,dataset22),naiveHDD(dataset22,dataset11));
+    std::cout <<"Hausdorff distance KAMATA = " << kamata << std::endl;
+    std::cout <<"Hausdorff distance TAHA= " << taha << std::endl;
+    std::cout <<"Hausdorff distance K2TREE V2= " << k2treev2 << std::endl;
+    std::cout <<"Hausdorff distance K2TREE V3= " << k2treev3 << std::endl;
+    std::cout <<"Hausdorff distance NAIVE= " << naive << std::endl;
     // Liberar recursos
-    destroySnapshot(snapsp); // Asegúrate de implementar esta función
-    destroySnapshot(snapsp2); // Asegúrate de implementar esta función
+    destroyK2tree(snapsp); // Asegúrate de implementar esta función
+    destroyK2tree(snapsp2); // Asegúrate de implementar esta función
 }
 
 void construirEstructura(const std::string &dataset1, const std::string &dataset2) {
     MREP2 *snapsp = nullptr;
     MREP2 *snapsp2 = nullptr;
 
-    unsigned int matrizSize = matrizNecesaria(dataset1);
-    cout <<"matriz size is: "<< matrizSize << endl;
-    unsigned int kz = (unsigned int)std::log2(matrizSize);
-    cout <<"elevate is: "<< kz<< endl;
-    int elevate = 22;
-    // int tamMatrix = pow(2, 16);
-    int tamMatrix = pow(2, elevate); // 2,19 para reales
+    unsigned int tamMatrix = matrizNecesaria(dataset1);
     std::cerr << "tam matrix is: " << tamMatrix << std::endl;
+    unsigned int exponent = (unsigned int)std::log2(tamMatrix);
+    cout <<"exponente is: "<< exponent<< endl;
 
     int cantPuntosSet1 = cuentaPuntos(dataset1);
     int cantPuntosSet2 = cuentaPuntos(dataset2);
     std::cerr << "cant point is is: " << cantPuntosSet1 << std::endl;
     std::cerr << "cant point2 is is: " << cantPuntosSet2 << std::endl;
 
-    std::cerr << "creating snapshots" << std::endl;
-    snapsp = createSnapshot(dataset1,elevate, cantPuntosSet1);
-    snapsp2 = createSnapshot(dataset2, elevate,  cantPuntosSet2);
+    std::cerr << "creating k2trees" << std::endl;
+    snapsp = createK2tree(dataset1,exponent, cantPuntosSet1);
+    snapsp2 = createK2tree(dataset2, exponent,  cantPuntosSet2);
 
     std::string snap1filename = extractFilename(dataset1) + ".kt";
     std::string snap2filename = extractFilename(dataset2) + ".kt";
-    std::cerr << "snap1 filename is: " << snap1filename << std::endl;
-    std::cerr << "snap2 filename is: " << snap2filename << std::endl;
+    std::cerr << "k2tree 1 filename is: " << snap1filename << std::endl;
+    std::cerr << "k2tree 2 filename is: " << snap2filename << std::endl;
 
-    std::cerr << "saving snapshots" << std::endl;
-    saveSnapshotToFile(snapsp, snap1filename.c_str());
-    saveSnapshotToFile(snapsp2, snap2filename.c_str());
+    std::cerr << "saving k2trees" << std::endl;
+    saveK2treeToFile(snapsp, snap1filename.c_str());
+    saveK2treeToFile(snapsp2, snap2filename.c_str());
 }
 
 int main(int argc, char **argv) {

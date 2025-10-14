@@ -23,6 +23,7 @@ L_NODE *createL_Node() {
     resp->child = NULL;
     return resp;
 }
+
 lkt *llenaK2tree(string ruta, int elevate) {
     lkt *tmp = createLKTree(elevate); //16 ERA ANTES
     string linea1;
@@ -268,7 +269,7 @@ int loadMREP2FromFile(MREP2 **ktree, std::ifstream &ifs) {
 
 //Operaciones con representación compacta
 
-MREP2 *createSnapshot(string dataset1, int elevate, uint cantPuntos) {
+MREP2 *createK2tree(string dataset1, int elevate, uint cantPuntos) {
     //NO destruye lkt, hay que hacerlo desde afuera.
     //Estrategia general:
     //usando el arbol se construye el ktree de los puntos, y se construye un
@@ -278,7 +279,7 @@ MREP2 *createSnapshot(string dataset1, int elevate, uint cantPuntos) {
     //en este caso los valores de Numero de objetos y numero de arcos no se
     //si son necesarios, hay que revisar.
     int tamMatrix = pow(2, elevate);
-    lkt *tree =  llenaK2tree(dataset1, elevate);
+    lkt *tree = llenaK2tree(dataset1, elevate);
     MREP2 *ktree = (MREP2 *) malloc(sizeof(MREP2));
     ktree->maxLevel = tree->max_Level;
     ktree->numberOfNodes = tamMatrix;
@@ -297,7 +298,7 @@ MREP2 *createSnapshot(string dataset1, int elevate, uint cantPuntos) {
     int i;
     char isroot = 1;
     //Queue *q = createEmptyQueue();
-    std::queue<L_NODE*> q;
+    std::queue<L_NODE *> q;
     L_NODE *subTree;
     q.push(tree->root);
     queuecont = 1;
@@ -314,7 +315,7 @@ MREP2 *createSnapshot(string dataset1, int elevate, uint cantPuntos) {
                 for (j = 0; j < K * K; j++) {
                     node = j;
                     conttmp++;
-                    q.push( subTree->child[node]);
+                    q.push(subTree->child[node]);
                 }
                 if (!isroot)
                     bitset(bits_BT, pos);
@@ -348,7 +349,7 @@ MREP2 *createSnapshot(string dataset1, int elevate, uint cantPuntos) {
         }
         pos++;
     }
-   // destroyQueue(q);
+    // destroyQueue(q);
     ktree->bn = PlainBitSequenceFactory(bits_BN, bits_BN_len);
     ktree->bl = PlainBitSequenceFactory(bits_LI, bits_LI_len);
 
@@ -366,7 +367,7 @@ MREP2 *createSnapshot(string dataset1, int elevate, uint cantPuntos) {
     return ktree;
 }
 
-void destroySnapshot(MREP2 *rep) {
+void destroyK2tree(MREP2 *rep) {
     //destroyRepresentation(rep->ktree);
     delete rep->bl;
     delete rep->bn;
@@ -380,14 +381,14 @@ void destroySnapshot(MREP2 *rep) {
     rep = NULL;
 }
 
-MREP2* loadSnapshotFromFile(const char *filename) {
+MREP2 *loadK2treeFromFile(const char *filename) {
     std::ifstream ifs(filename, std::ios::binary);
     if (!ifs) {
         perror("Error abriendo el archivo para cargar");
         return nullptr;
     }
 
-    MREP2 * mrep = (MREP2 *) malloc(sizeof(MREP2));
+    MREP2 *mrep = (MREP2 *) malloc(sizeof(MREP2));
     if (!mrep) {
         perror("Error al asignar memoria para MREP2");
         return nullptr;
@@ -403,8 +404,7 @@ MREP2* loadSnapshotFromFile(const char *filename) {
     return mrep;
 }
 
-// Guardar Snapshot en archivo
-int saveSnapshotToFile(MREP2 *snapshot, const char *filename) {
+int saveK2treeToFile(MREP2 *snapshot, const char *filename) {
     if (!snapshot || !filename) return -1;
 
     std::ofstream ofs(filename, std::ios::binary);
@@ -585,6 +585,7 @@ double maxDist(Point p, SpatialArea a) {
     return sqrt((dx * dx) + (dy * dy));
     //return (dx * dx) + (dy * dy);
 }
+
 double minDist(Point p, SpatialArea a) {
     long int x = p.getX();
     long int y = p.getY();
@@ -628,6 +629,7 @@ double minDist(Point p, SpatialArea a) {
     }
     return 0.0;
 }
+
 double maxDistSinSqrt(Point p, SpatialArea a) {
     long int dx1 = (p.getX() - a.x1);
     dx1 = dx1 >= 0 ? dx1 : -dx1;
@@ -647,6 +649,7 @@ double maxDistSinSqrt(Point p, SpatialArea a) {
 
     return (dx * dx) + (dy * dy);
 }
+
 double minDistSinSqrt(Point p, SpatialArea a) {
     long int x = p.getX();
     long int y = p.getY();
@@ -739,9 +742,11 @@ inline int isLeaf(MREP2 *mrep, long int index) {
     return (index != -1)
            && ((mrep->bt->getLength() + mrep->bn->getLength()) <= index);
 }
+
 inline int posInLeaf(MREP2 *mrep, long int index) {
     return index - (mrep->bt->getLength() + mrep->bn->getLength());
 }
+
 inline bool esCero(MREP2 *mrep, long int x) {
     long int btLen = mrep->bt->getLength();
     long int bnLen = mrep->bn->getLength();
@@ -871,7 +876,6 @@ void nnMax(MREP2 *rep, Point q, double &max) {
     max = c;
     //cout << "CMAX: " << sqrt(max) << endl;
 }
-
 
 /* agregados por Fernando Santolaya para rastrear tamaños del heap */
 void saveMaxPqueue(unsigned long num) {
@@ -1019,49 +1023,47 @@ void symmetricHausdorffDistance2D(MREP2 *A, MREP2 *B, double &supermax) {
         }
     }
     saveExitHeap(pQueue.size()); //agregado por fernando.
-
-    //cout << "N° de Puntos MaxHeap: " << contador << endl;
 }
 
 /***************************************/
 //////////////////////////////////////////////////////////////////
 double isCandidate(ElementQueue eq, MREP2 *B, double &supermax) {
-priority_queue<ElementQueue, std::vector<ElementQueue>, minHeapComparator> pQueue;
-long int subTreeIndex;
-ElementQueue e;
-e.sTree = -1;
-e.area.x1 = 0;
-//el 2 es porque k = 2, reemplazar por K.
-e.area.x2 = pow(K, B->maxLevel + 1) - 1;
-e.area.y1 = e.area.x1;
-e.area.y2 = e.area.x2;
-pQueue.push(e);
-while (!pQueue.empty()) {
-    e = pQueue.top();
-    pQueue.pop();
-    if (isLeaf(B, e.sTree)) {
-        //return true;
-        //return -1;
-        return e.priority;
-    } else {
-        subTreeIndex = firstChild(B, e.sTree);
-        for (int i = 0; i < (K * K); i++) {
-            if (!esCero(B, subTreeIndex + i)) {
-                ElementQueue child;
-                child.sTree = subTreeIndex + i;
-                child.area = getSubArea(e.area, i);
-                child.priority = maxDistAreas(eq.area, child.area);
-                if (child.priority <= supermax) {
-                    //return child.priority;
-                    //return false;
-                    return -1;
+    priority_queue<ElementQueue, std::vector<ElementQueue>, minHeapComparator> pQueue;
+    long int subTreeIndex;
+    ElementQueue e;
+    e.sTree = -1;
+    e.area.x1 = 0;
+    //el 2 es porque k = 2, reemplazar por K.
+    e.area.x2 = pow(K, B->maxLevel + 1) - 1;
+    e.area.y1 = e.area.x1;
+    e.area.y2 = e.area.x2;
+    pQueue.push(e);
+    while (!pQueue.empty()) {
+        e = pQueue.top();
+        pQueue.pop();
+        if (isLeaf(B, e.sTree)) {
+            //return true;
+            //return -1;
+            return e.priority;
+        } else {
+            subTreeIndex = firstChild(B, e.sTree);
+            for (int i = 0; i < (K * K); i++) {
+                if (!esCero(B, subTreeIndex + i)) {
+                    ElementQueue child;
+                    child.sTree = subTreeIndex + i;
+                    child.area = getSubArea(e.area, i);
+                    child.priority = maxDistAreas(eq.area, child.area);
+                    if (child.priority <= supermax) {
+                        //return child.priority;
+                        //return false;
+                        return -1;
+                    }
+                    pQueue.push(child);
                 }
-                pQueue.push(child);
             }
         }
     }
-}
-return -1;
+    return -1;
 }
 
 //este es el hausdorff detonado con caleta de poda!!!!
@@ -1125,106 +1127,66 @@ void hdkMaxHeapv2(MREP2 *A, MREP2 *B, double &supermax) {
 
 
 /*AGREGADO POR FERNANDO SANTOLAYA PARA HACER EXPERIMENTOS NUEVOS*/
-
+//*****************************Hausdorff K2TREE V2**************************************************************
 //esta es el ultimo hausdorff con caleta de poda
 double hausdorffDistHDK3MaxHeapv2(MREP2 *A, MREP2 *B) {
     double supermax = 0.0;
     hdkMaxHeapv2(A, B, supermax);
     return sqrt(supermax);
 }
-//symetricHausdorff
+
+//*****************************symetricHausdorff**************************************************************
 double symmetricHausdorffDistance2D(MREP2 *A, MREP2 *B) {
     double supermax = 0.0;
     symmetricHausdorffDistance2D(A, B, supermax);
     return sqrt(supermax);
 }
 
-
-//*******************************************************************************************
-
-double naiveHDD(Point p1[], Point p2[], int largo) {
+//*****************************NAIVE ALGORITHM**************************************************************
+double naiveHDD(std::vector<Point> &p1, std::vector<Point> &p2) {
     double d = 0.0;
     double cmin = 0.0;
     double cmax = 0.0;
-    //for (Point x : p1) {
-    //Point x = new Point();
-    //Point y = new Point();
-    for (int i = 0; i < largo; i++) {
+
+    for (size_t i = 0; i < p1.size(); i++) {
         cmin = std::numeric_limits<double>::max();
-        //for (Point y : p2) {
-        for (int j = 0; j < largo; j++) {
+        for (size_t j = 0; j < p2.size(); j++) {
             d = (p1[i].getX() - p2[j].getX()) * (p1[i].getX() - p2[j].getX()) +
                 (p1[i].getY() - p2[j].getY()) * (p1[i].getY() - p2[j].getY());
-            //distancia = sqrt((x1 - y1)*(x1 - y1 ) + (x2 - y2)*(x2 - y2));
-            //d = p1[i].restar(p2[j]);
-            //cout << d << ",";
             if (d < cmin) cmin = d;
         }
-        //cout << endl;
         if (cmin > cmax) cmax = cmin;
     }
-    delete[] p1;
-    delete[] p2;
+    return std::sqrt(cmax);
+}
+
+//*************************TAHA ALGORITHM******************************************************************
+double abdelHDD2(std::vector<Point> &Er, std::vector<Point> &Br) {
+    double cmax = 0.0, cmin, d;
+    int largoEr = Er.size();
+
+    for (int i = 0; i < largoEr; i++) {
+        cmin = std::numeric_limits<double>::max();
+        for (int j = 0; j < largoEr; j++) {
+            d = (Er[i].getX() - Br[j].getX()) * (Er[i].getX() - Br[j].getX()) +
+                (Er[i].getY() - Br[j].getY()) * (Er[i].getY() - Br[j].getY());
+
+            if (d < cmin) cmin = d;
+            if (d <= cmax) break; // Early break
+        }
+        if (cmin > cmax) cmax = cmin;
+    }
+
     return sqrt(cmax);
 }
 
-//entrada.
-// rep: un snapshot
-// q: el punto de referencia
-//salida:
-//	oid: el identificador del punto más cercano
-//  p: la posición del punto más cercanco.
-void NN(MREP2 *rep, Point q, uint &oid, Point &p) {
-    priority_queue<ElementQueue, std::vector<ElementQueue>, minHeapComparator> pQueue;
-    ElementQueue e, c;
-    e.sTree = 0;
-    e.area.x1 = 0;
-    //el 2 es porque k = 2, reemplazar por K.
-    e.area.x2 = pow(K, rep->maxLevel) - 1;
-    e.area.y1 = e.area.x1;
-    e.area.y2 = e.area.x2;
-    e.priority = maxDist(q, e.area);
-    c = e;
-    c.priority = e.priority + 1; //explicar el + 1 con un comentario!!!!
-    int foundNN = 0;
-    long int subTreeIndex;
-    double minDis2Child;
-    pQueue.push(e);
-    while (!pQueue.empty()) {
-        e = pQueue.top();
-        pQueue.pop();
-        if (isLeaf(rep, e.sTree)) {
-            //si es hoja de último nivel
-            if ((e.priority < c.priority)) {
-                c = e;
-                foundNN = 1;
-                //Al encontrar un candidato, puede haber otro mejor
-                //en otra área, hay que seguir buscando!
-            }
-        } else {
-            subTreeIndex = firstChild(rep, e.sTree);
-            //child function return -1 if sTree no have any child
-            //no tiene hijo si en la posición e.sTreee hay un 0.
-            if (subTreeIndex != -1) {
-                for (int i = 0; i < (K * K); i++) {
-                    ElementQueue child;
-                    child.sTree = subTreeIndex + i;
-                    child.area = getSubArea(e.area, i);
-                    child.priority = maxDist(q, child.area);
-                    minDis2Child = minDist(q, child.area);
-                    if (minDis2Child < c.priority) {
-                        pQueue.push(child);
-                    }
-                }
-            }
-        }
-    }
+double hausdorffDistTaha2(vector<Point> &A, vector<Point> &B) {
+    return abdelHDD2(A, B);
 }
-
-//////////////////////////////////////////////////////////////////////////////
+//*******************************************************************************************
 
 int getHeapMaxElements() {
-return heapMaxElements;
+    return heapMaxElements;
 }
 
 int getHeapExitElements() {
@@ -1232,8 +1194,8 @@ int getHeapExitElements() {
 }
 
 void recursiveGetRank2(MREP2 *snap, uint p1, uint p2, uint q1, uint q2,
-                      uint dp, uint dq, int x, int l, uint *&Oid, uint *&X,
-                      uint *&Y, uint &n) {
+                       uint dp, uint dq, int x, int l, uint *&Oid, uint *&X,
+                       uint *&Y, uint &n) {
     MREP2 *rep = snap;
     uint i = 0, j, leaf;
     uint y, p1new, p2new, q1new, q2new;
@@ -1247,8 +1209,8 @@ void recursiveGetRank2(MREP2 *snap, uint p1, uint p2, uint q1, uint q2,
                 if (rep->bl->access(leaf)) {
                     //dp + i => posición X del objeto econtrado
                     //dq + j => posición Y del objeto encontrado.
-                   // snap->labels->getObjects(rep->bl->rank1(leaf), dp + i,
-                     //                        dq + j, Oid, X, Y, n);
+                    // snap->labels->getObjects(rep->bl->rank1(leaf), dp + i,
+                    //                        dq + j, Oid, X, Y, n);
                     X[n] = dp + i;
                     Y[n] = dq + j;
                     n++;
@@ -1256,7 +1218,6 @@ void recursiveGetRank2(MREP2 *snap, uint p1, uint p2, uint q1, uint q2,
             }
             leaf += K;
         }
-
     }
 
     if ((l == rep->maxLevel - 1)
@@ -1266,10 +1227,9 @@ void recursiveGetRank2(MREP2 *snap, uint p1, uint p2, uint q1, uint q2,
         for (i = p1; i <= p2; i++) {
             for (j = q1; j <= q2; j++) {
                 recursiveGetRank2(snap, 0, 0, 0, 0, dp + i, dq + j,
-                                 y + K * i + j, l + 1, Oid, X, Y, n);
+                                  y + K * i + j, l + 1, Oid, X, Y, n);
             }
         }
-
     }
     if ((x == -1) || ((l < rep->maxLevel - 1) && (rep->bt->access(x)))) {
         //recorrido por el bitarray bt
@@ -1290,21 +1250,22 @@ void recursiveGetRank2(MREP2 *snap, uint p1, uint p2, uint q1, uint q2,
                 if (j == q2 / divlevel)
                     q2new = q2 % divlevel;
                 recursiveGetRank2(snap, p1new, p2new, q1new, q2new,
-                                 dp + divlevel * i, dq + divlevel * j, y + K * i + j,
-                                 l + 1, Oid, X, Y, n);
+                                  dp + divlevel * i, dq + divlevel * j, y + K * i + j,
+                                  l + 1, Oid, X, Y, n);
             }
         }
-
     }
 }
+
 void rangeQueryHDOriginal2(MREP2 *snap, uint p1, uint p2, uint q1, uint q2,
-                          uint *&Oid, uint *&X, uint *&Y, uint &n) {
+                           uint *&Oid, uint *&X, uint *&Y, uint &n) {
     Oid = new uint[snap->numberOfEdges]();
     X = new uint[snap->numberOfEdges]();
     Y = new uint[snap->numberOfEdges]();
     n = 0;
     recursiveGetRank2(snap, p1, p2, q1, q2, 0, 0, -1, -1, Oid, X, Y, n);
 }
+
 std::vector<Point> extractPointK2tree(MREP2 *J, int nelementos) {
     uint *Oid1;
     uint *X1;
@@ -1336,5 +1297,3 @@ size_t sizeMREP2(MREP2 *rep) {
     }
     return totalByte;
 }
-
-
