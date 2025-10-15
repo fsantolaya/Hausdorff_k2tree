@@ -31,7 +31,7 @@ ALGUNAS COSAS:
 
 
 
-Este proyecto utiliza la librería [libcds](http://libcds.recoded.cl/) (Compact Data Structures), mantenida por Recoded.cl.
+Este proyecto utiliza la librería [libcds](https://github.com/fclaude/libcds) (Compact Data Structures Library), de Francisco Claude.
 
 Instrucciones para integrar esa libreria: 
 
