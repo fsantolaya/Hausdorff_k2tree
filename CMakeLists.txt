@@ -4,7 +4,7 @@ project(hausdorff)
 set(CMAKE_CXX_STANDARD 14)
 
 # Rutas de tus propios headers
-include_directories(
+target_include_directories(hausdorff PUBLIC
         .
         IO
         Logs
