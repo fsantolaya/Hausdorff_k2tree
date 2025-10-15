@@ -3,15 +3,6 @@ project(hausdorff)
 
 set(CMAKE_CXX_STANDARD 14)
 
-# Rutas de tus propios headers
-include_directories(
-        .
-        IO
-        Logs
-        K2tree
-        Util
-)
-
 # ==== LIBRERÍA libcds ====
 # Toma automáticamente todos los .cpp de libcds
 file(GLOB_RECURSE LIBCDS_SRC
@@ -36,6 +27,15 @@ add_executable(hausdorff
         utils.cpp
         ryu-kamata.cpp
         main.cpp
+)
+
+# Rutas de tus propios headers
+target_include_directories(hausdorff PUBLIC
+        .
+        IO
+        Logs
+        K2tree
+        Util
 )
 
 # Vincula tu ejecutable con la librería cds
